@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClipForge — AI Video Clipper</title>
+<meta name="description" content="Find engaging moments in your videos and create vertical short clips in your browser.">
+<style>
+:root{color-scheme:dark;--bg:#090b12;--panel:#121725;--panel2:#171f30;--line:#28334a;--text:#f4f7ff;--muted:#9ba8bf;--purple:#8b5cf6;--cyan:#38bdf8;--green:#34d399}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#1c1740 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1050px;margin:auto;padding:28px 18px 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:34px}.brand{font-size:20px;font-weight:850;letter-spacing:-.6px}.brand span{color:#a78bfa}.tag{font-size:12px;color:#c4b5fd;border:1px solid #51417c;background:#211a3a;padding:6px 10px;border-radius:99px}
+.hero{text-align:center;margin:20px 0 28px}.hero h1{font-size:clamp(30px,6vw,48px);line-height:1.08;letter-spacing:-1.8px;margin:0 0 12px}.hero h1 em{font-style:normal;background:linear-gradient(90deg,#a78bfa,#38bdf8);background-clip:text;color:transparent}.hero p{color:var(--muted);max-width:650px;margin:auto}
+.panel{background:linear-gradient(145deg,#151c2c,#101522);border:1px solid var(--line);border-radius:20px;padding:22px;margin:16px 0;box-shadow:0 18px 60px #0003}.upload{border:1.5px dashed #52617c;border-radius:16px;padding:30px 18px;text-align:center;background:#0c1220;cursor:pointer;transition:.2s}.upload:hover,.upload.drag{border-color:#a78bfa;background:#17152b}.upload .symbol{font-size:34px}.upload h2{font-size:18px;margin:8px 0 3px}.muted{color:var(--muted);font-size:13px}.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.field label{display:block;color:#c5cee0;font-size:12px;margin:0 0 7px}.field select{width:100%;background:#0b1120;color:white;border:1px solid var(--line);padding:12px;border-radius:10px;font:inherit}
+button,.download{border:0;border-radius:11px;padding:12px 17px;font:700 14px inherit;cursor:pointer;color:white;background:linear-gradient(100deg,#7c3aed,#2563eb);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}button:disabled{opacity:.45;cursor:not-allowed}.primary{width:100%;margin-top:18px;padding:15px}.secondary{background:#222c40;border:1px solid #34425c}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.fileinfo{display:none;margin-top:13px;color:#dce6fa;font-size:13px}.progresswrap{display:none;margin-top:18px}.progress{height:8px;background:#273149;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#38bdf8);transition:width .2s}.status{font-size:13px;color:#c2cce0;margin:8px 0}.results{display:none}.clipgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:16px}.clip{background:#0c1220;border:1px solid var(--line);border-radius:14px;overflow:hidden}.clip video{width:100%;aspect-ratio:9/16;object-fit:contain;background:#05070c;max-height:360px}.clipbody{padding:13px}.clipbody h3{margin:0 0 4px;font-size:15px}.score{color:#86efac;font-size:12px}.clipbody p{font-size:12px;color:var(--muted);margin:5px 0 12px}.clipbody a{width:100%;font-size:13px}.notice{background:#191b32;border:1px solid #39365f;border-radius:12px;padding:13px;color:#cbd5e1;font-size:12px;margin-top:16px}.error{color:#fca5a5}.hidden{display:none!important}footer{text-align:center;color:#74819a;font-size:12px;margin-top:30px}
+@media(max-width:620px){main{padding:18px 12px 40px}.controls{grid-template-columns:1fr}.panel{padding:15px}.hero{margin-top:12px}.top{margin-bottom:24px}}
+</style>
+</head>
+<body>
+<main>
+ <div class="top"><div class="brand">✂ Clip<span>Forge</span></div><div class="tag">BROWSER-BASED CLIP MAKER</div></div>
+ <section class="hero"><h1>Find the moment.<br><em>Make it a Short.</em></h1><p>Upload a video and ClipForge will scan for energetic, visually active moments, rank candidate highlights and cut them into shareable clips.</p></section>
+ <section class="panel">
+  <div class="upload" id="drop">
+   <div class="symbol">📹</div><h2>Drop your video here</h2><div class="muted">or tap to choose a file · MP4, MOV, WEBM and more</div>
+   <input id="file" type="file" accept="video/*" hidden>
+  </div>
+  <div class="fileinfo" id="fileinfo"></div>
+  <div class="controls">
+   <div class="field"><label for="length">CLIP LENGTH</label><select id="length"><option value="15">15 seconds</option><option value="30" selected>30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option></select></div>
+   <div class="field"><label for="count">NUMBER OF CLIPS</label><select id="count"><option>3</option><option selected>5</option><option>8</option></select></div>
+   <div class="field"><label for="format">OUTPUT FORMAT</label><select id="format"><option value="vertical" selected>Vertical 9:16</option><option value="original">Keep original shape</option></select></div>
+  </div>
+  <button class="primary" id="go" disabled>✨ Analyze video & create clips</button>
+  <div class="progresswrap" id="progresswrap"><div class="row"><b id="phase">Preparing…</b><span class="muted" id="pct">0%</span></div><div class="progress"><div class="bar" id="bar"></div></div><div class="status" id="status">Please keep this tab open while processing.</div></div>
+  <div class="notice">Your video is processed locally in your browser; it is not uploaded to a server. Large videos may need substantial memory and processing time. The highlight score is an estimate based on audio energy and visual changes—not a prediction or guarantee of views.</div>
+ </section>
+ <section class="panel results" id="results"><div class="row"><div><h2 style="margin:0">Your clips</h2><div class="muted" id="summary">Ranked highlight moments</div></div><button class="secondary" id="reset">Start over</button></div><div class="clipgrid" id="clips"></div></section>
+ <footer>ClipForge · Free static website · Made for GitHub Pages</footer>
+</main>
+<script type="module">
+const $=id=>document.getElementById(id);
+let selectedFile=null,ffmpeg=null,objectUrls=[];
+const setProgress=(p,phase,msg)=>{$('progresswrap').style.display='block';$('bar').style.width=Math.max(0,Math.min(100,p))+'%';$('pct').textContent=Math.round(p)+'%';$('phase').textContent=phase;$('status').textContent=msg||''};
+const fmtBytes=n=>n>1024**3?(n/1024**3).toFixed(2)+' GB':(n/1024**2).toFixed(1)+' MB';
+function chooseFile(f){if(!f)return;if(!f.type.startsWith('video/')){alert('Please choose a video file.');return}selectedFile=f;$('fileinfo').style.display='block';$('fileinfo').textContent='Selected: '+f.name+' · '+fmtBytes(f.size);$('go').disabled=false;$('results').style.display='none';}
+$('drop').addEventListener('click',()=>$('file').click());
+$('file').addEventListener('change',e=>chooseFile(e.target.files[0]));
+$('drop').addEventListener('dragover',e=>{e.preventDefault();$('drop').classList.add('drag')});
+$('drop').addEventListener('dragleave',()=>$('drop').classList.remove('drag'));
+$('drop').addEventListener('drop',e=>{e.preventDefault();$('drop').classList.remove('drag');chooseFile(e.dataTransfer.files[0])});
+function loadVideo(file){return new Promise((resolve,reject)=>{const v=document.createElement('video');const u=URL.createObjectURL(file);v.preload='metadata';v.muted=true;v.playsInline=true;v.onloadedmetadata=()=>resolve({v,u,duration:v.duration});v.onerror=()=>reject(new Error('The browser could not read this video. Try MP4 (H.264).'));v.src=u;});}
+function seek(v,t){return new Promise((resolve,reject)=>{const done=()=>{v.removeEventListener('seeked',done);resolve()};v.addEventListener('seeked',done,{once:true});v.currentTime=Math.min(Math.max(0,t),Math.max(0,v.duration-.05));setTimeout(()=>reject(new Error('Video seek timed out.')),10000);});}
+async function analyze(file,clipLen){const {v,u,duration}=await loadVideo(file);if(!Number.isFinite(duration)||duration<3)throw new Error('This video is too short or has invalid duration.');if(duration>900)throw new Error('For this free browser version, please use a video shorter than 15 minutes.');const canvas=document.createElement('canvas');canvas.width=96;canvas.height=54;const ctx=canvas.getContext('2d',{willReadFrequently:true});let frames=[];const step=1;for(let t=0;t<duration;t+=step){await seek(v,t);ctx.drawImage(v,0,0,96,54);const d=ctx.getImageData(0,0,96,54).data;let lum=0;for(let i=0;i<d.length;i+=16)lum+=(d[i]*.299+d[i+1]*.587+d[i+2]*.114);frames.push(lum/(d.length/16));setProgress(5+35*t/duration,'Scanning video',`Checking visual activity · ${Math.min(t+1,Math.ceil(duration))} / ${Math.ceil(duration)} seconds`);}
+URL.revokeObjectURL(u);let visual=frames.map((x,i)=>i?Math.abs(x-frames[i-1]):0);const maxV=Math.max(1,...visual);visual=visual.map(x=>x/maxV);
+let audio=new Array(Math.ceil(duration)).fill(0);try{const AC=window.AudioContext||window.webkitAudioContext;if(AC){const ac=new AC();const ab=await file.arrayBuffer();const buf=await ac.decodeAudioData(ab);const data=buf.getChannelData(0);const sr=buf.sampleRate;for(let s=0;s<audio.length;s++){let start=Math.floor(s*sr),end=Math.min(data.length,start+sr);let sum=0;for(let i=start;i<end;i+=8)sum+=data[i]*data[i];audio[s]=Math.sqrt(sum/Math.max(1,Math.ceil((end-start)/8)));}await ac.close();}}catch(e){console.warn('Audio analysis unavailable; using visual analysis only.',e)}
+const maxA=Math.max(.0001,...audio);audio=audio.map(x=>x/maxA);
+const n=Math.ceil(duration),scores=[];for(let i=0;i<n;i++){let prev=Math.max(0,i-1),next=Math.min(n-1,i+1);scores.push(.55*audio[i]+.30*(visual[i]||0)+.15*Math.min(1,Math.abs((frames[next]||0)-(frames[prev]||0))/60));}
+const L=Math.min(clipLen,Math.floor(duration));if(duration<L)throw new Error(`Video must be at least ${L} seconds for the selected clip length.`);
+let candidates=[];for(let start=0;start+L<=duration;start+=Math.max(1,Math.floor(L/5))){let vals=scores.slice(Math.floor(start),Math.min(n,Math.ceil(start+L)));let avg=vals.reduce((a,b)=>a+b,0)/Math.max(1,vals.length);let peak=Math.max(...vals);candidates.push({start:Math.floor(start),length:L,score:.75*avg+.25*peak});}
+candidates.sort((a,b)=>b.score-a.score);let chosen=[];for(const c of candidates){if(chosen.every(x=>Math.abs(x.start-c.start)>=L*.75)){chosen.push(c);if(chosen.length>=Number($('count').value))break;}}
+return chosen.sort((a,b)=>a.start-b.start);
+}
+async function getFFmpeg(){if(ffmpeg)return ffmpeg;setProgress(42,'Loading video engine','Downloading the free FFmpeg browser engine (first use may take a moment)…');const {FFmpeg}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/esm/index.js');const {toBlobURL}=await import('https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.2/dist/esm/index.js');ffmpeg=new FFmpeg();ffmpeg.on('progress',({progress})=>setProgress(65+Math.max(0,Math.min(1,progress))*30,'Rendering clips','Encoding video in your browser…'));const base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';await ffmpeg.load({coreURL:await toBlobURL(base+'/ffmpeg-core.js','text/javascript'),wasmURL:await toBlobURL(base+'/ffmpeg-core.wasm','application/wasm')});return ffmpeg;}
+async function createClips(file,candidates){const f=await getFFmpeg();const input='source_video';try{await f.writeFile(input,new Uint8Array(await file.arrayBuffer()));}catch(e){throw new Error('Could not load this video into browser memory. Try a smaller file.');}
+$('clips').innerHTML='';objectUrls.forEach(URL.revokeObjectURL);objectUrls=[];
+for(let i=0;i<candidates.length;i++){const c=candidates[i],out=`clip_${i+1}.mp4`;let vf=$('format').value==='vertical'?'scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280':'scale=1280:-2:force_original_aspect_ratio=decrease';setProgress(65+(i/candidates.length)*30,'Creating clip '+(i+1)+' of '+candidates.length,`Cutting moment at ${Math.floor(c.start/60)}:${String(c.start%60).padStart(2,'0')}…`);
+await f.exec(['-ss',String(c.start),'-i',input,'-t',String(c.length),'-vf',vf,'-c:v','libx264','-preset','ultrafast','-crf','25','-c:a','aac','-b:a','128k','-movflags','+faststart',out]);const data=await f.readFile(out);const blob=new Blob([data.buffer],{type:'video/mp4'});const url=URL.createObjectURL(blob);objectUrls.push(url);const card=document.createElement('article');card.className='clip';const video=document.createElement('video');video.src=url;video.controls=true;video.playsInline=true;const body=document.createElement('div');body.className='clipbody';const title=document.createElement('h3');title.textContent=`Clip ${i+1} · ${Math.floor(c.start/60)}:${String(c.start%60).padStart(2,'0')} start`;const score=document.createElement('div');score.className='score';score.textContent=`Highlight score: ${Math.round(c.score*100)} / 100`;const desc=document.createElement('p');desc.textContent='Selected from audio energy and visual activity. Check the preview before posting.';const a=document.createElement('a');a.className='download';a.href=url;a.download=`clipforge_highlight_${i+1}.mp4`;a.textContent='⬇ Download MP4';body.append(title,score,desc,a);card.append(video,body);$('clips').append(card);try{await f.deleteFile(out)}catch{}}
+try{await f.deleteFile(input)}catch{}setProgress(100,'All done!','Preview your clips and download the ones you like.');$('results').style.display='block';$('summary').textContent=`Created ${candidates.length} ranked clip${candidates.length===1?'':'s'} · preview before publishing`;$('results').scrollIntoView({behavior:'smooth'});}
+$('go').addEventListener('click',async()=>{if(!selectedFile)return;$('go').disabled=true;$('results').style.display='none';try{setProgress(2,'Starting analysis','Reading video details…');const picks=await analyze(selectedFile,Number($('length').value));await createClips(selectedFile,picks);}catch(e){console.error(e);setProgress(0,'Could not finish',e.message||'Something went wrong. Try another video.');$('status').classList.add('error');}finally{$('go').disabled=false;}});
+$('reset').addEventListener('click',()=>{selectedFile=null;$('file').value='';$('fileinfo').style.display='none';$('go').disabled=true;$('results').style.display='none';$('progresswrap').style.display='none';objectUrls.forEach(URL.revokeObjectURL);objectUrls=[];});
+</script>
+</body>
+</html>
